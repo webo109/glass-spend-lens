@@ -36,12 +36,6 @@ const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
 export const Ledger = () => {
-  const { expenses, currency } = useApp();
-  const [q, setQ] = useState("");
-
-  const filtered = useMemo(() => {
-    const s = q.toLowerCase();
-export const Ledger = () => {
   const { expenses, currency, deleteExpense } = useApp();
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<Expense | null>(null);
