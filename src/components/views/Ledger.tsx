@@ -3,9 +3,16 @@ import { useApp } from "@/context/AppContext";
 import { Expense, formatMoney, convert } from "@/lib/expenses";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { QuickAddDialog } from "@/components/QuickAddDialog";
-import { Search, Filter } from "lucide-react";
+import { EditExpenseDialog } from "@/components/EditExpenseDialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Search, Filter, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const StatusBadge = ({ s }: { s: Expense["status"] }) => {
   const map = {
@@ -29,8 +36,11 @@ const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
 export const Ledger = () => {
-  const { expenses, currency } = useApp();
+  const { expenses, currency, deleteExpense } = useApp();
   const [q, setQ] = useState("");
+  const [editing, setEditing] = useState<Expense | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const s = q.toLowerCase();
@@ -40,6 +50,15 @@ export const Ledger = () => {
       e.category.toLowerCase().includes(s)
     );
   }, [expenses, q]);
+
+  const openEdit = (e: Expense) => { setEditing(e); setEditOpen(true); };
+  const confirmDelete = () => {
+    if (!deleteId) return;
+    const target = expenses.find(e => e.id === deleteId);
+    deleteExpense(deleteId);
+    toast.success(`Deleted "${target?.name ?? "expense"}"`);
+    setDeleteId(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -81,11 +100,16 @@ export const Ledger = () => {
                 <TableHead className="text-[11px] uppercase tracking-wider">Cycle</TableHead>
                 <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
                 <TableHead className="text-right text-[11px] uppercase tracking-wider">Next Renewal</TableHead>
+                <TableHead className="text-right text-[11px] uppercase tracking-wider">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.map((e) => (
-                <TableRow key={e.id} className="border-border/30 transition hover:bg-card/40">
+                <TableRow
+                  key={e.id}
+                  className="cursor-pointer border-border/30 transition hover:bg-card/40"
+                  onClick={() => openEdit(e)}
+                >
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-medium">{e.name}</span>
@@ -111,11 +135,31 @@ export const Ledger = () => {
                   <TableCell className="text-right text-muted-foreground">
                     {e.billing_cycle === "one_time" ? "—" : fmtDate(e.next_renewal)}
                   </TableCell>
+                  <TableCell className="text-right" onClick={(ev) => ev.stopPropagation()}>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost" size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={() => openEdit(e)}
+                        aria-label={`Edit ${e.name}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost" size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-expense"
+                        onClick={() => setDeleteId(e.id)}
+                        aria-label={`Delete ${e.name}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-12 text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
                     No expenses match your search.
                   </TableCell>
                 </TableRow>
@@ -124,6 +168,28 @@ export const Ledger = () => {
           </Table>
         </div>
       </div>
+
+      <EditExpenseDialog expense={editing} open={editOpen} onOpenChange={setEditOpen} />
+
+      <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <AlertDialogContent className="glass-strong">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this expense?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the entry from your ledger. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-expense text-expense-foreground hover:bg-expense/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
