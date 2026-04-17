@@ -1,10 +1,10 @@
-import { Search, Bell, Sparkles } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useApp } from "@/context/AppContext";
 import { Currency } from "@/lib/expenses";
 import { ViewMode } from "@/context/AppContext";
+import { NotificationsPopover } from "@/components/NotificationsPopover";
 
 const SegToggle = <T extends string>({
   value, onChange, options, label,
@@ -67,10 +67,7 @@ export const TopBar = () => {
 
         <div className="hidden h-6 w-px bg-border/60 md:block" />
 
-        <Button size="icon" variant="ghost" className="relative h-9 w-9 rounded-full">
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-expense" />
-        </Button>
+        <NotificationsPopover />
 
         <button className="hidden items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-glow transition hover:bg-primary/20 md:flex">
           <Sparkles className="h-3.5 w-3.5" /> AI Insights
