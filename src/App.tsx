@@ -8,6 +8,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { Analytics } from "@/components/views/Analytics";
 import { Ledger } from "@/components/views/Ledger";
 import { Sandbox } from "@/components/views/Sandbox";
+import { Notifications } from "@/components/views/Notifications";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
               <Route path="/" element={<Analytics />} />
               <Route path="/ledger" element={<Ledger />} />
               <Route path="/sandbox" element={<Sandbox />} />
+              <Route path="/notifications" element={<Notifications />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Receipt, FlaskConical, Wallet } from "lucide-react";
+import { LayoutDashboard, Receipt, FlaskConical, Wallet, Bell } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -9,6 +9,7 @@ const items = [
   { title: "Analytics", url: "/", icon: LayoutDashboard },
   { title: "Expense Ledger", url: "/ledger", icon: Receipt },
   { title: "What-If Sandbox", url: "/sandbox", icon: FlaskConical },
+  { title: "Notifications", url: "/notifications", icon: Bell },
 ];
 
 export function AppSidebar() {
