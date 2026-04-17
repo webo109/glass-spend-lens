@@ -3,9 +3,16 @@ import { useApp } from "@/context/AppContext";
 import { Expense, formatMoney, convert } from "@/lib/expenses";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { QuickAddDialog } from "@/components/QuickAddDialog";
-import { Search, Filter } from "lucide-react";
+import { EditExpenseDialog } from "@/components/EditExpenseDialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Search, Filter, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const StatusBadge = ({ s }: { s: Expense["status"] }) => {
   const map = {
