@@ -130,6 +130,7 @@ export const EditExpenseDialog = ({ expense, open, onOpenChange }: Props) => {
               <Select value={form.status} onValueChange={(v) => set("status", v as Status)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="planned">Planned</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="paused">Paused</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
