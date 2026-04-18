@@ -42,18 +42,28 @@ const fmtDate = (iso: string) =>
 export const Ledger = () => {
   const { expenses, currency, deleteExpense } = useApp();
   const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState<Expense["status"] | "all">("all");
   const [editing, setEditing] = useState<Expense | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const s = q.toLowerCase();
-    return expenses.filter(e =>
-      e.name.toLowerCase().includes(s) ||
-      e.vendor?.toLowerCase().includes(s) ||
-      e.category.toLowerCase().includes(s)
-    );
-  }, [expenses, q]);
+    return expenses.filter(e => {
+      if (statusFilter !== "all" && e.status !== statusFilter) return false;
+      return (
+        e.name.toLowerCase().includes(s) ||
+        e.vendor?.toLowerCase().includes(s) ||
+        e.category.toLowerCase().includes(s)
+      );
+    });
+  }, [expenses, q, statusFilter]);
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: expenses.length, planned: 0, active: 0, paused: 0, cancelled: 0 };
+    expenses.forEach(e => { counts[e.status] = (counts[e.status] ?? 0) + 1; });
+    return counts;
+  }, [expenses]);
 
   const openEdit = (e: Expense) => { setEditing(e); setEditOpen(true); };
   const confirmDelete = () => {
