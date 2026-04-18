@@ -129,84 +129,116 @@ export const Ledger = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border/40 hover:bg-transparent">
-                <TableHead className="text-[11px] uppercase tracking-wider">Name</TableHead>
-                <TableHead className="text-[11px] uppercase tracking-wider">Type</TableHead>
-                <TableHead className="text-right text-[11px] uppercase tracking-wider">Cost</TableHead>
-                <TableHead className="text-right text-[11px] uppercase tracking-wider">VAT (5%)</TableHead>
-                <TableHead className="text-[11px] uppercase tracking-wider">Cycle</TableHead>
-                <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
-                <TableHead className="text-right text-[11px] uppercase tracking-wider">Next Renewal</TableHead>
-                <TableHead className="text-right text-[11px] uppercase tracking-wider">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((e) => (
-                <TableRow
-                  key={e.id}
-                  className="cursor-pointer border-border/30 transition hover:bg-card/40"
-                  onClick={() => openEdit(e)}
-                >
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{e.name}</span>
-                      <span className="text-[11px] text-muted-foreground">
-                        {e.vendor} · {e.category} · {e.base_rate} × {e.quantity}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell><TypeBadge t={e.type} /></TableCell>
-                  <TableCell className="num text-right">
-                    <div className="flex flex-col items-end">
-                      <span className="font-semibold">{formatMoney(e.total_amount, e.currency)}</span>
-                      <span className="text-[10px] text-muted-foreground">
-                        ≈ {formatMoney(convert(e.total_amount, e.currency, currency), currency)}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="num text-right text-muted-foreground">
-                    {e.vat_amount > 0 ? formatMoney(e.vat_amount, e.currency) : "—"}
-                  </TableCell>
-                  <TableCell className="capitalize text-muted-foreground">{e.billing_cycle.replace("_", " ")}</TableCell>
-                  <TableCell><StatusBadge s={e.status} /></TableCell>
-                  <TableCell className="text-right text-muted-foreground">
-                    {e.billing_cycle === "one_time" ? "—" : fmtDate(e.next_renewal)}
-                  </TableCell>
-                  <TableCell className="text-right" onClick={(ev) => ev.stopPropagation()}>
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost" size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                        onClick={() => openEdit(e)}
-                        aria-label={`Edit ${e.name}`}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost" size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-expense"
-                        onClick={() => setDeleteId(e.id)}
-                        aria-label={`Delete ${e.name}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        {(() => {
+          const renderRow = (e: Expense) => (
+            <TableRow
+              key={e.id}
+              className="cursor-pointer border-border/30 transition hover:bg-card/40"
+              onClick={() => openEdit(e)}
+            >
+              <TableCell>
+                <div className="flex flex-col">
+                  <span className="font-medium">{e.name}</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {e.vendor} · {e.category} · {e.base_rate} × {e.quantity}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell><TypeBadge t={e.type} /></TableCell>
+              <TableCell className="num text-right">
+                <div className="flex flex-col items-end">
+                  <span className="font-semibold">{formatMoney(e.total_amount, e.currency)}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    ≈ {formatMoney(convert(e.total_amount, e.currency, currency), currency)}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell className="num text-right text-muted-foreground">
+                {e.vat_amount > 0 ? formatMoney(e.vat_amount, e.currency) : "—"}
+              </TableCell>
+              <TableCell className="capitalize text-muted-foreground">{e.billing_cycle.replace("_", " ")}</TableCell>
+              <TableCell><StatusBadge s={e.status} /></TableCell>
+              <TableCell className="text-right text-muted-foreground">
+                {e.billing_cycle === "one_time" ? "—" : fmtDate(e.next_renewal)}
+              </TableCell>
+              <TableCell className="text-right" onClick={(ev) => ev.stopPropagation()}>
+                <div className="flex items-center justify-end gap-1">
+                  <Button
+                    variant="ghost" size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    onClick={() => openEdit(e)}
+                    aria-label={`Edit ${e.name}`}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost" size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-expense"
+                    onClick={() => setDeleteId(e.id)}
+                    aria-label={`Delete ${e.name}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          );
+
+          const renderTable = (rows: Expense[], emptyMsg: string) => (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border/40 hover:bg-transparent">
+                  <TableHead className="text-[11px] uppercase tracking-wider">Name</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Type</TableHead>
+                  <TableHead className="text-right text-[11px] uppercase tracking-wider">Cost</TableHead>
+                  <TableHead className="text-right text-[11px] uppercase tracking-wider">VAT (5%)</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Cycle</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
+                  <TableHead className="text-right text-[11px] uppercase tracking-wider">Next Renewal</TableHead>
+                  <TableHead className="text-right text-[11px] uppercase tracking-wider">Actions</TableHead>
                 </TableRow>
-              ))}
-              {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
-                    No expenses match your search.
-                  </TableCell>
-                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map(renderRow)}
+                {rows.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
+                      {emptyMsg}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          );
+
+          return (
+            <>
+              <div className="overflow-x-auto">
+                {renderTable(mainList, "No expenses match your search.")}
+              </div>
+
+              {statusFilter === "all" && pipelineList.length > 0 && (
+                <div className="border-t border-border/40">
+                  <div className="flex items-center gap-2 px-4 pb-2 pt-5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-info" />
+                    <h3 className="font-display text-sm font-semibold tracking-wide text-foreground">
+                      Pipeline
+                    </h3>
+                    <span className="rounded-full border border-info/30 bg-info/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-info">
+                      {pipelineList.length} planned
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Not yet active — excluded from live spend.
+                    </span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    {renderTable(pipelineList, "No planned expenses.")}
+                  </div>
+                </div>
               )}
-            </TableBody>
-          </Table>
-        </div>
+            </>
+          );
+        })()}
       </div>
 
       <EditExpenseDialog expense={editing} open={editOpen} onOpenChange={setEditOpen} />
