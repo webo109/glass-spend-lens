@@ -26,7 +26,7 @@ export const QuickAddDialog = () => {
     setBaseRate(""); setQuantity("1"); setBilling("monthly"); setIncludesVat(true);
   };
 
-  const submit = () => {
+  const submit = async () => {
     const rate = parseFloat(baseRate);
     const qty = parseInt(quantity, 10);
     if (!name || isNaN(rate) || isNaN(qty)) {
@@ -34,19 +34,18 @@ export const QuickAddDialog = () => {
       return;
     }
     const total = rate * qty;
-    const expense: Expense = {
-      id: `e-${Date.now()}`,
+    const expense = {
       name, vendor: "—", category: "Custom",
       type, currency,
       base_rate: rate, quantity: qty,
       total_amount: total,
       vat_amount: includesVat ? +(total * 0.05).toFixed(2) : 0,
       includes_vat: includesVat,
-      billing_cycle: type === "one_time" ? "one_time" : billing,
-      status: "active",
+      billing_cycle: (type === "one_time" ? "one_time" : billing) as Expense["billing_cycle"],
+      status: "active" as Expense["status"],
       next_renewal: new Date(Date.now() + 30 * 86400000).toISOString(),
     };
-    addExpense(expense);
+    await addExpense(expense as Expense);
     toast.success(`Added "${name}"`);
     reset();
     setOpen(false);

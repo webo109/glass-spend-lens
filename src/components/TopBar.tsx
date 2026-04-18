@@ -1,10 +1,13 @@
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, LogOut } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { useApp } from "@/context/AppContext";
 import { Currency } from "@/lib/expenses";
 import { ViewMode } from "@/context/AppContext";
 import { NotificationsPopover } from "@/components/NotificationsPopover";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const SegToggle = <T extends string>({
   value, onChange, options, label,
@@ -37,6 +40,11 @@ const SegToggle = <T extends string>({
 
 export const TopBar = () => {
   const { currency, setCurrency, view, setView } = useApp();
+  const { user, signOut } = useAuth();
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Signed out");
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border/40 bg-background/60 px-4 backdrop-blur-xl md:px-6">
@@ -72,6 +80,25 @@ export const TopBar = () => {
         <button className="hidden items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-glow transition hover:bg-primary/20 md:flex">
           <Sparkles className="h-3.5 w-3.5" /> AI Insights
         </button>
+
+        {user && (
+          <>
+            <div className="hidden h-6 w-px bg-border/60 md:block" />
+            <div className="hidden items-center gap-2 md:flex">
+              <span className="max-w-[140px] truncate text-xs text-muted-foreground" title={user.email ?? ""}>
+                {user.email}
+              </span>
+            </div>
+            <Button
+              variant="ghost" size="icon"
+              onClick={handleSignOut}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              aria-label="Sign out"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </>
+        )}
       </div>
     </header>
   );
