@@ -114,7 +114,7 @@ export type Database = {
     Enums: {
       billing_cycle: "monthly" | "quarterly" | "annual" | "one_time"
       expense_currency: "OMR" | "USD"
-      expense_status: "active" | "paused" | "cancelled"
+      expense_status: "active" | "paused" | "cancelled" | "planned"
       expense_type: "subscription" | "one_time" | "scenario"
     }
     CompositeTypes: {
@@ -245,7 +245,7 @@ export const Constants = {
     Enums: {
       billing_cycle: ["monthly", "quarterly", "annual", "one_time"],
       expense_currency: ["OMR", "USD"],
-      expense_status: ["active", "paused", "cancelled"],
+      expense_status: ["active", "paused", "cancelled", "planned"],
       expense_type: ["subscription", "one_time", "scenario"],
     },
   },

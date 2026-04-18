@@ -1,6 +1,6 @@
 export type ExpenseType = 'subscription' | 'one_time' | 'scenario';
 export type Currency = 'OMR' | 'USD';
-export type Status = 'active' | 'paused' | 'cancelled';
+export type Status = 'planned' | 'active' | 'paused' | 'cancelled';
 export type BillingCycle = 'monthly' | 'quarterly' | 'annual' | 'one_time';
 
 export interface Expense {

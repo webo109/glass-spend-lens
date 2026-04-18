@@ -11,17 +11,21 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Filter, Pencil, Trash2 } from "lucide-react";
+import { Search, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-const StatusBadge = ({ s }: { s: Expense["status"] }) => {
-  const map = {
-    active: "border-success/30 bg-success/10 text-success",
-    paused: "border-warning/30 bg-warning/10 text-warning",
-    cancelled: "border-expense/30 bg-expense/10 text-expense",
-  } as const;
-  return <Badge variant="outline" className={`capitalize ${map[s]}`}>{s}</Badge>;
-};
+const STATUS_STYLES = {
+  planned: "border-info/30 bg-info/10 text-info",
+  active: "border-success/30 bg-success/10 text-success",
+  paused: "border-warning/30 bg-warning/10 text-warning",
+  cancelled: "border-expense/30 bg-expense/10 text-expense",
+} as const;
+
+const StatusBadge = ({ s }: { s: Expense["status"] }) => (
+  <Badge variant="outline" className={`capitalize ${STATUS_STYLES[s]}`}>{s}</Badge>
+);
+
+const STATUS_OPTIONS: Array<Expense["status"] | "all"> = ["all", "planned", "active", "paused", "cancelled"];
 
 const TypeBadge = ({ t }: { t: Expense["type"] }) => {
   const map = {
@@ -38,18 +42,28 @@ const fmtDate = (iso: string) =>
 export const Ledger = () => {
   const { expenses, currency, deleteExpense } = useApp();
   const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState<Expense["status"] | "all">("all");
   const [editing, setEditing] = useState<Expense | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const s = q.toLowerCase();
-    return expenses.filter(e =>
-      e.name.toLowerCase().includes(s) ||
-      e.vendor?.toLowerCase().includes(s) ||
-      e.category.toLowerCase().includes(s)
-    );
-  }, [expenses, q]);
+    return expenses.filter(e => {
+      if (statusFilter !== "all" && e.status !== statusFilter) return false;
+      return (
+        e.name.toLowerCase().includes(s) ||
+        e.vendor?.toLowerCase().includes(s) ||
+        e.category.toLowerCase().includes(s)
+      );
+    });
+  }, [expenses, q, statusFilter]);
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: expenses.length, planned: 0, active: 0, paused: 0, cancelled: 0 };
+    expenses.forEach(e => { counts[e.status] = (counts[e.status] ?? 0) + 1; });
+    return counts;
+  }, [expenses]);
 
   const openEdit = (e: Expense) => { setEditing(e); setEditOpen(true); };
   const confirmDelete = () => {
@@ -81,9 +95,25 @@ export const Ledger = () => {
               className="h-9 border-border/50 bg-card/40 pl-9"
             />
           </div>
-          <button className="flex items-center gap-1.5 rounded-md border border-border/50 bg-card/40 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
-            <Filter className="h-3.5 w-3.5" /> Filters
-          </button>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {STATUS_OPTIONS.map(s => {
+              const isActive = statusFilter === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium capitalize transition ${
+                    isActive
+                      ? "border-primary/40 bg-primary/15 text-foreground"
+                      : "border-border/50 bg-card/40 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {s}
+                  <span className="num text-[10px] opacity-70">{statusCounts[s] ?? 0}</span>
+                </button>
+              );
+            })}
+          </div>
           <div className="text-xs text-muted-foreground">
             <span className="num font-semibold text-foreground">{filtered.length}</span> of {expenses.length} entries
           </div>
