@@ -275,7 +275,7 @@ export const Sandbox = () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmPromote}
-              className="bg-info text-info-foreground hover:bg-info/90"
+              className="bg-info text-background hover:bg-info/90"
             >
               Confirm
             </AlertDialogAction>
