@@ -6,7 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, FlaskConical, ArrowUpRight, Wand2 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Trash2, FlaskConical, ArrowUpRight, Wand2, ArrowUpCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface Draft {
   id: string;
@@ -30,7 +35,7 @@ const draftToExpense = (d: Draft): Expense => {
 };
 
 export const Sandbox = () => {
-  const { expenses, currency } = useApp();
+  const { expenses, currency, addExpense } = useApp();
   const baseline = totalsFor(expenses, currency);
 
   const [drafts, setDrafts] = useState<Draft[]>([
@@ -41,6 +46,8 @@ export const Sandbox = () => {
     name: "", currency: "OMR", base_rate: 0, quantity: 1, billing: "monthly", includes_vat: true,
   });
 
+  const [promoteDraft, setPromoteDraft] = useState<Draft | null>(null);
+
   const add = () => {
     if (!form.name || form.base_rate <= 0 || form.quantity <= 0) return;
     setDrafts(prev => [...prev, { ...form, id: `d-${Date.now()}` }]);
@@ -48,6 +55,29 @@ export const Sandbox = () => {
   };
 
   const remove = (id: string) => setDrafts(prev => prev.filter(d => d.id !== id));
+
+  const confirmPromote = async () => {
+    if (!promoteDraft) return;
+    const d = promoteDraft;
+    const total = d.base_rate * d.quantity;
+    await addExpense({
+      name: d.name,
+      category: "Planned",
+      type: "subscription",
+      currency: d.currency,
+      base_rate: d.base_rate,
+      quantity: d.quantity,
+      total_amount: total,
+      vat_amount: d.includes_vat ? +(total * 0.05).toFixed(2) : 0,
+      includes_vat: d.includes_vat,
+      billing_cycle: d.billing,
+      status: "planned",
+      next_renewal: new Date().toISOString(),
+    });
+    setDrafts(prev => prev.filter(x => x.id !== d.id));
+    setPromoteDraft(null);
+    toast.success(`"${d.name}" added to ledger as Planned`);
+  };
 
   const draftsMonthly = useMemo(
     () => drafts.reduce((s, d) => s + monthlyInCurrency(draftToExpense(d), currency), 0),
@@ -156,6 +186,13 @@ export const Sandbox = () => {
                       <p className="num text-sm font-semibold">{formatMoney(monthly, currency)}</p>
                       <p className="text-[10px] text-muted-foreground">/mo</p>
                     </div>
+                    <Button
+                      variant="outline" size="sm"
+                      onClick={() => setPromoteDraft(d)}
+                      className="h-7 gap-1 border-info/30 bg-info/10 px-2 text-[11px] text-info hover:bg-info/20 hover:text-info"
+                    >
+                      <ArrowUpCircle className="h-3.5 w-3.5" /> Add to Ledger
+                    </Button>
                     <button onClick={() => remove(d.id)}
                       className="rounded-md p-1.5 text-muted-foreground transition hover:bg-expense/10 hover:text-expense">
                       <Trash2 className="h-3.5 w-3.5" />
@@ -216,6 +253,35 @@ export const Sandbox = () => {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={!!promoteDraft} onOpenChange={(o) => !o && setPromoteDraft(null)}>
+        <AlertDialogContent className="glass-strong">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Add to Expense Ledger?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Move this draft to your Expense Ledger as a Planned expense?
+              {promoteDraft && (
+                <span className="mt-3 block rounded-lg border border-info/20 bg-info/5 p-3 text-foreground">
+                  <span className="block text-sm font-medium">{promoteDraft.name}</span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    {promoteDraft.base_rate} {promoteDraft.currency} × {promoteDraft.quantity} · {promoteDraft.billing}
+                    {promoteDraft.includes_vat ? " · +5% VAT" : ""}
+                  </span>
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmPromote}
+              className="bg-info text-background hover:bg-info/90"
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
