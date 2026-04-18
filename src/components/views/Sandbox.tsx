@@ -253,6 +253,35 @@ export const Sandbox = () => {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={!!promoteDraft} onOpenChange={(o) => !o && setPromoteDraft(null)}>
+        <AlertDialogContent className="glass-strong">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Add to Expense Ledger?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Move this draft to your Expense Ledger as a Planned expense?
+              {promoteDraft && (
+                <span className="mt-3 block rounded-lg border border-info/20 bg-info/5 p-3 text-foreground">
+                  <span className="block text-sm font-medium">{promoteDraft.name}</span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    {promoteDraft.base_rate} {promoteDraft.currency} × {promoteDraft.quantity} · {promoteDraft.billing}
+                    {promoteDraft.includes_vat ? " · +5% VAT" : ""}
+                  </span>
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmPromote}
+              className="bg-info text-info-foreground hover:bg-info/90"
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
