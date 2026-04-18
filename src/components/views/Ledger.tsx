@@ -59,6 +59,16 @@ export const Ledger = () => {
     });
   }, [expenses, q, statusFilter]);
 
+  // When viewing "all", split into main ledger (non-planned) and Pipeline (planned)
+  const mainList = useMemo(
+    () => statusFilter === "all" ? filtered.filter(e => e.status !== "planned") : filtered,
+    [filtered, statusFilter],
+  );
+  const pipelineList = useMemo(
+    () => statusFilter === "all" ? filtered.filter(e => e.status === "planned") : [],
+    [filtered, statusFilter],
+  );
+
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = { all: expenses.length, planned: 0, active: 0, paused: 0, cancelled: 0 };
     expenses.forEach(e => { counts[e.status] = (counts[e.status] ?? 0) + 1; });
