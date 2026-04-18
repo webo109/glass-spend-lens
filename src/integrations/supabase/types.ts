@@ -14,7 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      expenses: {
+        Row: {
+          base_rate: number
+          billing_cycle: Database["public"]["Enums"]["billing_cycle"]
+          category: string
+          created_at: string
+          created_by: string | null
+          currency: Database["public"]["Enums"]["expense_currency"]
+          id: string
+          includes_vat: boolean
+          name: string
+          next_renewal: string
+          quantity: number
+          status: Database["public"]["Enums"]["expense_status"]
+          total_amount: number
+          type: Database["public"]["Enums"]["expense_type"]
+          updated_at: string
+          vat_amount: number
+          vendor: string | null
+        }
+        Insert: {
+          base_rate?: number
+          billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
+          category: string
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["expense_currency"]
+          id?: string
+          includes_vat?: boolean
+          name: string
+          next_renewal?: string
+          quantity?: number
+          status?: Database["public"]["Enums"]["expense_status"]
+          total_amount?: number
+          type?: Database["public"]["Enums"]["expense_type"]
+          updated_at?: string
+          vat_amount?: number
+          vendor?: string | null
+        }
+        Update: {
+          base_rate?: number
+          billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["expense_currency"]
+          id?: string
+          includes_vat?: boolean
+          name?: string
+          next_renewal?: string
+          quantity?: number
+          status?: Database["public"]["Enums"]["expense_status"]
+          total_amount?: number
+          type?: Database["public"]["Enums"]["expense_type"]
+          updated_at?: string
+          vat_amount?: number
+          vendor?: string | null
+        }
+        Relationships: []
+      }
+      notification_state: {
+        Row: {
+          created_at: string
+          id: string
+          is_dismissed: boolean
+          is_read: boolean
+          notification_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_dismissed?: boolean
+          is_read?: boolean
+          notification_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_dismissed?: boolean
+          is_read?: boolean
+          notification_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +112,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      billing_cycle: "monthly" | "quarterly" | "annual" | "one_time"
+      expense_currency: "OMR" | "USD"
+      expense_status: "active" | "paused" | "cancelled"
+      expense_type: "subscription" | "one_time" | "scenario"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +242,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      billing_cycle: ["monthly", "quarterly", "annual", "one_time"],
+      expense_currency: ["OMR", "USD"],
+      expense_status: ["active", "paused", "cancelled"],
+      expense_type: ["subscription", "one_time", "scenario"],
+    },
   },
 } as const
