@@ -186,6 +186,13 @@ export const Sandbox = () => {
                       <p className="num text-sm font-semibold">{formatMoney(monthly, currency)}</p>
                       <p className="text-[10px] text-muted-foreground">/mo</p>
                     </div>
+                    <Button
+                      variant="outline" size="sm"
+                      onClick={() => setPromoteDraft(d)}
+                      className="h-7 gap-1 border-info/30 bg-info/10 px-2 text-[11px] text-info hover:bg-info/20 hover:text-info"
+                    >
+                      <ArrowUpCircle className="h-3.5 w-3.5" /> Add to Ledger
+                    </Button>
                     <button onClick={() => remove(d.id)}
                       className="rounded-md p-1.5 text-muted-foreground transition hover:bg-expense/10 hover:text-expense">
                       <Trash2 className="h-3.5 w-3.5" />
