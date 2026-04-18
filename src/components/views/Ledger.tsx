@@ -95,9 +95,25 @@ export const Ledger = () => {
               className="h-9 border-border/50 bg-card/40 pl-9"
             />
           </div>
-          <button className="flex items-center gap-1.5 rounded-md border border-border/50 bg-card/40 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
-            <Filter className="h-3.5 w-3.5" /> Filters
-          </button>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {STATUS_OPTIONS.map(s => {
+              const isActive = statusFilter === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium capitalize transition ${
+                    isActive
+                      ? "border-primary/40 bg-primary/15 text-foreground"
+                      : "border-border/50 bg-card/40 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {s}
+                  <span className="num text-[10px] opacity-70">{statusCounts[s] ?? 0}</span>
+                </button>
+              );
+            })}
+          </div>
           <div className="text-xs text-muted-foreground">
             <span className="num font-semibold text-foreground">{filtered.length}</span> of {expenses.length} entries
           </div>
