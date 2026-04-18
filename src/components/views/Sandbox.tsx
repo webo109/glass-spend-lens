@@ -35,7 +35,7 @@ const draftToExpense = (d: Draft): Expense => {
 };
 
 export const Sandbox = () => {
-  const { expenses, currency } = useApp();
+  const { expenses, currency, addExpense } = useApp();
   const baseline = totalsFor(expenses, currency);
 
   const [drafts, setDrafts] = useState<Draft[]>([
@@ -46,6 +46,8 @@ export const Sandbox = () => {
     name: "", currency: "OMR", base_rate: 0, quantity: 1, billing: "monthly", includes_vat: true,
   });
 
+  const [promoteDraft, setPromoteDraft] = useState<Draft | null>(null);
+
   const add = () => {
     if (!form.name || form.base_rate <= 0 || form.quantity <= 0) return;
     setDrafts(prev => [...prev, { ...form, id: `d-${Date.now()}` }]);
@@ -53,6 +55,29 @@ export const Sandbox = () => {
   };
 
   const remove = (id: string) => setDrafts(prev => prev.filter(d => d.id !== id));
+
+  const confirmPromote = async () => {
+    if (!promoteDraft) return;
+    const d = promoteDraft;
+    const total = d.base_rate * d.quantity;
+    await addExpense({
+      name: d.name,
+      category: "Planned",
+      type: "subscription",
+      currency: d.currency,
+      base_rate: d.base_rate,
+      quantity: d.quantity,
+      total_amount: total,
+      vat_amount: d.includes_vat ? +(total * 0.05).toFixed(2) : 0,
+      includes_vat: d.includes_vat,
+      billing_cycle: d.billing,
+      status: "planned",
+      next_renewal: new Date().toISOString(),
+    });
+    setDrafts(prev => prev.filter(x => x.id !== d.id));
+    setPromoteDraft(null);
+    toast.success(`"${d.name}" added to ledger as Planned`);
+  };
 
   const draftsMonthly = useMemo(
     () => drafts.reduce((s, d) => s + monthlyInCurrency(draftToExpense(d), currency), 0),
