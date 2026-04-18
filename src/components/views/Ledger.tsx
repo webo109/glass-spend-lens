@@ -14,14 +14,18 @@ import {
 import { Search, Filter, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-const StatusBadge = ({ s }: { s: Expense["status"] }) => {
-  const map = {
-    active: "border-success/30 bg-success/10 text-success",
-    paused: "border-warning/30 bg-warning/10 text-warning",
-    cancelled: "border-expense/30 bg-expense/10 text-expense",
-  } as const;
-  return <Badge variant="outline" className={`capitalize ${map[s]}`}>{s}</Badge>;
-};
+const STATUS_STYLES = {
+  planned: "border-info/30 bg-info/10 text-info",
+  active: "border-success/30 bg-success/10 text-success",
+  paused: "border-warning/30 bg-warning/10 text-warning",
+  cancelled: "border-expense/30 bg-expense/10 text-expense",
+} as const;
+
+const StatusBadge = ({ s }: { s: Expense["status"] }) => (
+  <Badge variant="outline" className={`capitalize ${STATUS_STYLES[s]}`}>{s}</Badge>
+);
+
+const STATUS_OPTIONS: Array<Expense["status"] | "all"> = ["all", "planned", "active", "paused", "cancelled"];
 
 const TypeBadge = ({ t }: { t: Expense["type"] }) => {
   const map = {
