@@ -138,12 +138,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return;
     const { id: _ignore, ...rest } = e as Expense;
     const totals = recalc(rest);
-    const { error } = await supabase.from('expenses').insert({
+    const { data, error } = await supabase.from('expenses').insert({
       ...rest,
       ...totals,
       created_by: user.id,
-    } as any);
-    if (error) toast.error(`Add failed: ${error.message}`);
+    } as any).select().single();
+    if (error) {
+      toast.error(`Add failed: ${error.message}`);
+      return;
+    }
+    if (data) {
+      const row = fromRow(data);
+      setExpenses(prev => prev.some(x => x.id === row.id) ? prev : [row, ...prev]);
+    }
   }, [user]);
 
   const updateExpense = useCallback(async (id: string, patch: Partial<Expense>) => {
@@ -152,13 +159,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const merged = { ...current, ...patch };
     const totals = recalc(merged);
     const { id: _, ...payload } = { ...merged, ...totals };
-    const { error } = await supabase.from('expenses').update(payload as any).eq('id', id);
-    if (error) toast.error(`Update failed: ${error.message}`);
+    const { data, error } = await supabase.from('expenses').update(payload as any).eq('id', id).select().single();
+    if (error) {
+      toast.error(`Update failed: ${error.message}`);
+      return;
+    }
+    if (data) {
+      const row = fromRow(data);
+      setExpenses(prev => prev.map(e => e.id === row.id ? row : e));
+    }
   }, [expenses]);
 
   const deleteExpense = useCallback(async (id: string) => {
     const { error } = await supabase.from('expenses').delete().eq('id', id);
-    if (error) toast.error(`Delete failed: ${error.message}`);
+    if (error) {
+      toast.error(`Delete failed: ${error.message}`);
+      return;
+    }
+    setExpenses(prev => prev.filter(e => e.id !== id));
   }, []);
 
   const upsertNotifState = useCallback(async (
